@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
-    static public final String pdpUrlString = "http://0.0.0.0:8081";
+    static public final String pdpUrlString = "http://0.0.0.0:8080";
     static private UConInterface ucon = null;
     
     static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) {
@@ -30,7 +30,7 @@ public class Main {
     }
     
     static public void main(String[] argv) throws Exception {
-            log.info("Setting up Ucon embedded server...");
+            log.info("Setting up Ucon server...");
             ucon = UCon.getInstance(new URL(pdpUrlString));
             changePoliciesTo("/META-INF/policies/pre.xml",
                              "/META-INF/policies/on.xml",

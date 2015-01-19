@@ -7,4 +7,10 @@
         <Target>
         </Target>
     </Rule>
+    <ObligationExpressions> 
+        <ObligationExpression ObligationId="sayWelcome" FulfillOn="Permit"/> 
+        <ObligationExpression ObligationId="showUser" FulfillOn="Permit"/> 
+        <ObligationExpression ObligationId="sayStandOff" FulfillOn="Deny"/> 
+        <ObligationExpression ObligationId="showUser" FulfillOn="Deny"/> 
+    </ObligationExpressions> 
 </Policy>
