@@ -22,7 +22,7 @@ public class Main {
     static public final String pdpUrlString = "http://0.0.0.0:8080";
     static private UCon ucon = null;
     
-    static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws MalformedURLException {
+    static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws Exception {
         ucon.setPolicy(UConInterface.PolicyEnum.PRE, Main.class.getResource(prePath));
         ucon.setPolicy(UConInterface.PolicyEnum.ON, Main.class.getResource(onPath));
         ucon.setPolicy(UConInterface.PolicyEnum.POST, Main.class.getResource(postPath));
