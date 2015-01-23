@@ -8,6 +8,7 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.impl.UCon;
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +20,9 @@ import org.slf4j.LoggerFactory;
 public class Main {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     static public final String pdpUrlString = "http://0.0.0.0:8080";
-    static private UConInterface ucon = null;
+    static private UCon ucon = null;
     
-    static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) {
+    static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws MalformedURLException {
         ucon.setPolicy(UConInterface.PolicyEnum.PRE, Main.class.getResource(prePath));
         ucon.setPolicy(UConInterface.PolicyEnum.ON, Main.class.getResource(onPath));
         ucon.setPolicy(UConInterface.PolicyEnum.POST, Main.class.getResource(postPath));
@@ -31,13 +32,15 @@ public class Main {
     
     static public void main(String[] argv) throws Exception {
             log.info("Setting up Ucon server...");
-            ucon = UCon.getInstance(new URL(pdpUrlString));
+            ucon = (UCon) UCon.getInstance(new URL(pdpUrlString));
             changePoliciesTo("/META-INF/policies/pre.xml",
                              "/META-INF/policies/on.xml",
                              "/META-INF/policies/post.xml",
                              "/META-INF/policies/trystart.xml",
                              "/META-INF/policies/tryend.xml"
             );
+            ucon.maxMissedHeartbeats = 100;
+            ucon.watchdogPeriod = 10000;
             ucon.init();            
         }
 
