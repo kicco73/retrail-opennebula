@@ -27,11 +27,11 @@ public class Main {
     static public PIPSessions pipSessions = null;
     
     static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws Exception {
-        ucon.setPolicy(UConInterface.PolicyEnum.PRE, Main.class.getResource(prePath));
-        ucon.setPolicy(UConInterface.PolicyEnum.ON, Main.class.getResource(onPath));
-        ucon.setPolicy(UConInterface.PolicyEnum.POST, Main.class.getResource(postPath));
-        ucon.setPolicy(UConInterface.PolicyEnum.TRYSTART, Main.class.getResource(tryStartPath));
-        ucon.setPolicy(UConInterface.PolicyEnum.TRYEND, Main.class.getResource(tryEndPath));
+        ucon.setPolicy(UConInterface.PolicyEnum.PRE, Main.class.getResourceAsStream(prePath));
+        ucon.setPolicy(UConInterface.PolicyEnum.ON, Main.class.getResourceAsStream(onPath));
+        ucon.setPolicy(UConInterface.PolicyEnum.POST, Main.class.getResourceAsStream(postPath));
+        ucon.setPolicy(UConInterface.PolicyEnum.TRYSTART, Main.class.getResourceAsStream(tryStartPath));
+        ucon.setPolicy(UConInterface.PolicyEnum.TRYEND, Main.class.getResourceAsStream(tryEndPath));
     }
     
     static public void main(String[] argv) throws Exception {
