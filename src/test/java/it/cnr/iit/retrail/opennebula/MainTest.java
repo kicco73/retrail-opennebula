@@ -4,7 +4,6 @@
  */
 package it.cnr.iit.retrail.opennebula;
 
-import it.cnr.iit.retrail.client.PEPInterface;
 import it.cnr.iit.retrail.client.impl.PEP;
 import it.cnr.iit.retrail.commons.Client;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
@@ -13,11 +12,10 @@ import it.cnr.iit.retrail.commons.impl.PepSession;
 import java.io.File;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import junit.framework.TestCase;
 import org.apache.xmlrpc.XmlRpcException;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,7 @@ public class MainTest extends TestCase {
     
     private class PEPtest extends PEP {
 
-        public PEPtest(URL pdpUrl, URL myUrl) throws XmlRpcException, UnknownHostException {
+        public PEPtest(URL pdpUrl, URL myUrl) throws XmlRpcException, UnknownHostException, NoSuchAlgorithmException, KeyManagementException {
             super(pdpUrl, myUrl);
         }
         

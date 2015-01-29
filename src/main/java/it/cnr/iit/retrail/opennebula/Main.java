@@ -8,8 +8,8 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.impl.UCon;
-import it.cnr.iit.retrail.server.pip.PIPInterface;
 import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
+import java.io.File;
 import java.net.URL;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +27,7 @@ public class Main {
     static public PIPSessions pipSessions = null;
     
     static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws Exception {
+        log.warn("using internally packaged policy set");
         ucon.setPolicy(UConInterface.PolicyEnum.PRE, Main.class.getResourceAsStream(prePath));
         ucon.setPolicy(UConInterface.PolicyEnum.ON, Main.class.getResourceAsStream(onPath));
         ucon.setPolicy(UConInterface.PolicyEnum.POST, Main.class.getResourceAsStream(postPath));
@@ -34,15 +35,30 @@ public class Main {
         ucon.setPolicy(UConInterface.PolicyEnum.TRYEND, Main.class.getResourceAsStream(tryEndPath));
     }
     
+    static private void readPoliciesFromDir(String dirPath) throws Exception {
+        File f = new File(dirPath);
+        dirPath = "file:"+f.getAbsolutePath();
+        log.warn("using file-system policy set located at dir: {}", f.getAbsolutePath());
+        ucon.setPolicy(UConInterface.PolicyEnum.PRE, new URL(dirPath+"/opennebula-pre.xml"));
+        ucon.setPolicy(UConInterface.PolicyEnum.ON, new URL(dirPath+"/opennebula-on.xml"));
+        ucon.setPolicy(UConInterface.PolicyEnum.POST, new URL(dirPath+"/opennebula-post.xml"));
+        ucon.setPolicy(UConInterface.PolicyEnum.TRYSTART, new URL(dirPath+"/opennebula-trystart.xml"));
+        ucon.setPolicy(UConInterface.PolicyEnum.TRYEND, new URL(dirPath+"/opennebula-tryend.xml"));
+    }
+    
     static public void main(String[] argv) throws Exception {
             log.info("Setting up Ucon server...");
             ucon = (UCon) UCon.getInstance(new URL(pdpUrlString));
-            changePoliciesTo("/META-INF/policies/opennebula-pre.xml",
-                             "/META-INF/policies/opennebula-on.xml",
-                             "/META-INF/policies/opennebula-post.xml",
-                             "/META-INF/policies/opennebula-trystart.xml",
-                             "/META-INF/policies/opennebula-tryend.xml"
-            );
+            if(argv != null && argv.length > 0)
+                readPoliciesFromDir(argv[0]);
+            else
+                changePoliciesTo("/META-INF/policies/opennebula-pre.xml",
+                                 "/META-INF/policies/opennebula-on.xml",
+                                 "/META-INF/policies/opennebula-post.xml",
+                                 "/META-INF/policies/opennebula-trystart.xml",
+                                 "/META-INF/policies/opennebula-tryend.xml"
+                );
+            
             ucon.maxMissedHeartbeats = 100;
             ucon.watchdogPeriod = 10000;
             pipSemaphore = new PIPSemaphore(new URL(pipUrlString), true);

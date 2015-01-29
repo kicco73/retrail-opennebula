@@ -11,6 +11,8 @@ import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ public class PIPSemaphore extends StandAlonePIP {
     final WebServer webServer;
     final URL url;
 
-    public PIPSemaphore(URL myUrl, boolean green) throws UnknownHostException, XmlRpcException {
+    public PIPSemaphore(URL myUrl, boolean green) throws UnknownHostException, XmlRpcException, NoSuchAlgorithmException, KeyManagementException {
         super();
         url = myUrl;
         log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrl, id, green, getClass().getSimpleName());
