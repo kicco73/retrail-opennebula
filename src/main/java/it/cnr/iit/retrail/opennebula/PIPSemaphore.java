@@ -28,7 +28,7 @@ public class PIPSemaphore extends StandAlonePIP {
     final WebServer webServer;
     final URL url;
 
-    public PIPSemaphore(URL myUrl, boolean green) throws UnknownHostException, XmlRpcException, NoSuchAlgorithmException, KeyManagementException {
+    public PIPSemaphore(URL myUrl, boolean green) throws Exception {
         super();
         url = myUrl;
         log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrl, id, green, getClass().getSimpleName());

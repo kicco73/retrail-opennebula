@@ -19,7 +19,7 @@
                                              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
                                              DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
                         </AttributeDesignator>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">10</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">11</AttributeValue>
                     </Match>
                 </AllOf>
             </AnyOf>
