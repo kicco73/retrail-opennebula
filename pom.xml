@@ -66,7 +66,7 @@
                         netstat --listening --programs -n 2> /dev/null | grep 8081 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
                         echo done.
                         echo -n "killing previously running retrail client on port 8082 (if any)..."
-                        netstat --listening --programs -n 2> /dev/null | grep 8081 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
+                        netstat --listening --programs -n 2> /dev/null | grep 8082 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
                         echo done.
                         rm -rf retrail.derby
                         exit 0

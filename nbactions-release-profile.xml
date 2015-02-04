@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>clean</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>clean</goal>
+                <goal>com.atlassian.maven.plugins:bash-maven-plugin:1.0-SNAPSHOT:run</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>rebuild</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>clean</goal>
+                <goal>com.atlassian.maven.plugins:bash-maven-plugin:1.0-SNAPSHOT:run</goal>
+                <goal>install</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>build-with-dependencies</actionName>
+            <reactor>also-make</reactor>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>com.atlassian.maven.plugins:bash-maven-plugin:1.0-SNAPSHOT:run</goal>
+                <goal>install</goal>
+            </goals>
+        </action>
+    </actions>
