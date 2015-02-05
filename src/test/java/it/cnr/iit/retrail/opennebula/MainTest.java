@@ -5,7 +5,7 @@
 package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.client.impl.PEP;
-import it.cnr.iit.retrail.commons.Client;
+import it.cnr.iit.retrail.commons.impl.Client;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
@@ -70,7 +70,7 @@ public class MainTest extends TestCase {
         pep = new PEPtest(new URL(Main.pdpUrlString), new URL(pepUrlString));
         pep.setAccessRecoverableByDefault(false);
         pep.init();
-        pep.client.startRecording(new File("retrail-opennebula.xml"));
+        pep.startRecording(new File("retrail-opennebula.xml"));
         pepRequest = PepRequest.newInstance(
             "carniani",
             "urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination",
@@ -80,7 +80,7 @@ public class MainTest extends TestCase {
     
     @Override
     protected void tearDown() throws Exception {
-        pep.client.stopRecording();
+        pep.stopRecording();
         pep.term();
         Main.ucon.term();
         super.tearDown();
