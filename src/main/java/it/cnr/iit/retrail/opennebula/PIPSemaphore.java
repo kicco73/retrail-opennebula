@@ -10,10 +10,6 @@ import it.cnr.iit.retrail.commons.Server;
 import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +50,7 @@ public class PIPSemaphore extends StandAlonePIP {
     public void onBeforeTryAccess(PepRequestInterface request) {
         log.warn("inserting attribute {}: {}", id, green);
         PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
-        request.add(test);
+        request.replace(test);
     }
     
     @Override
