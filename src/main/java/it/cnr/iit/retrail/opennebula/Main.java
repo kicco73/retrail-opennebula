@@ -8,6 +8,7 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.impl.UCon;
+import it.cnr.iit.retrail.server.impl.UConFactory;
 import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.File;
 import java.net.URL;
@@ -48,7 +49,7 @@ public class Main {
     
     static public void main(String[] argv) throws Exception {
             log.info("Setting up Ucon server...");
-            ucon = (UCon) UCon.getInstance(new URL(pdpUrlString));
+            ucon = (UCon) UConFactory.getInstance(new URL(pdpUrlString));
             if(argv != null && argv.length > 0)
                 readPoliciesFromDir(argv[0]);
             else
