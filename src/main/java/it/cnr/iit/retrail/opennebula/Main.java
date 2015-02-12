@@ -23,9 +23,11 @@ public class Main {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     static public final String pdpUrlString = "http://0.0.0.0:8080";
     static public final String pipUrlString = "http://0.0.0.0:8082";
+    static public final String semUrlString = "http://0.0.0.0:8083";
     static public UCon ucon = null;
     static public PIPSemaphore pipSemaphore = null;
     static public PIPSessions pipSessions = null;
+    static public SemaphoreServer semaphoreServer = null;
     
     static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws Exception {
         log.warn("using internally packaged policy set");
@@ -48,6 +50,10 @@ public class Main {
     }
     
     static public void main(String[] argv) throws Exception {
+            log.info("Setting up Semaphore server...");
+            semaphoreServer = new SemaphoreServer(new URL(semUrlString), true);
+            semaphoreServer.init();
+
             log.info("Setting up Ucon server...");
             ucon = (UCon) UConFactory.getInstance(new URL(pdpUrlString));
             if(argv != null && argv.length > 0)
@@ -59,14 +65,17 @@ public class Main {
                                  "/META-INF/policies/opennebula-trystart.xml",
                                  "/META-INF/policies/opennebula-tryend.xml"
                 );
-            
-            ucon.maxMissedHeartbeats = 100;
-            ucon.watchdogPeriod = 10000;
-            pipSemaphore = new PIPSemaphore(new URL(pipUrlString), true);
+            ucon.maxMissedHeartbeats = 3600;
+            ucon.setWatchdogPeriod(0);
+            pipSemaphore = new PIPSemaphore(new URL(pipUrlString), true, new URL(semUrlString));
             ucon.addPIP(pipSemaphore);
             pipSessions = new PIPSessions();
             ucon.addPIP(pipSessions);
             ucon.init();            
         }
 
+    static public void term() throws InterruptedException {
+        ucon.term();
+        semaphoreServer.term();
+    }
 }

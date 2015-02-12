@@ -65,8 +65,11 @@
                         echo -n "killing previously running retrail client on port 8081 (if any)..."
                         netstat --listening --programs -n 2> /dev/null | grep 8081 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
                         echo done.
-                        echo -n "killing previously running retrail client on port 8082 (if any)..."
+                        echo -n "killing previously running retrail pip semaphore on port 8082 (if any)..."
                         netstat --listening --programs -n 2> /dev/null | grep 8082 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
+                        echo done.
+                        echo -n "killing previously running retrail semaphore server on port 8083 (if any)..."
+                        netstat --listening --programs -n 2> /dev/null | grep 8083 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
                         echo done.
                         rm -rf retrail.derby
                         exit 0
@@ -84,6 +87,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.5</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -95,6 +99,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -104,10 +109,22 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>selfcontained-retrail-${artifactId}-${version}</finalName>
+                    <finalName>selfcontained-retrail-${project.artifactId}-${project.version}</finalName>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
             </plugin>
 
         </plugins>
+       
     </build>
+
 </project>

@@ -1,21 +1,23 @@
+package it.cnr.iit.retrail.opennebula;
+
 /*
  * CNR - IIT
  * Coded by: 2014 Enrico "KMcC;) Carniani
  */
-package it.cnr.iit.retrail.opennebula;
+
+import it.cnr.iit.retrail.opennebula.*;
 
 /**
  *
  * @author oneadmin
  */
-public class PIPSemaphoreProtocol {
+public interface PIPSemaphoreProtocol extends SemaphoreProtocol {
 
-    public boolean setValue(boolean value) throws Exception {
-        Main.pipSemaphore.setValue(value);
-        return getValue();
-    }
+    public boolean setPolling(boolean value) throws Exception;
 
-    public boolean getValue() {
-        return Main.pipSemaphore.getValue();
-    }
+    public boolean isPolling();
+    
+    public int setWatchdogPeriod(int newWatchdogPeriod);
+
+    public int getWatchdogPeriod();
 }

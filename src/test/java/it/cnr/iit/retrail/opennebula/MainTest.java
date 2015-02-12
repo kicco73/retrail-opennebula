@@ -48,10 +48,21 @@ public class MainTest extends TestCase {
         }
         public void setSemaphoreValue(boolean value) throws Exception {
             Client pipRpc = new Client(Main.pipSemaphore.url);
+            pipRpc.trustAllPeers();
             Object []params = new Object[]{value};
             log.warn("calling remote PIPSemaphore.setValue({}) at url {}", value, Main.pipSemaphore.url);
             pipRpc.startRecording(new File("pipsemaphore.xml"));
             pipRpc.execute("PIPSemaphore.setValue", params);
+            pipRpc.stopRecording();
+        }
+        
+        public void setExternalSemaphoreValue(boolean value) throws Exception {
+            Client pipRpc = new Client(Main.semaphoreServer.myUrl);
+            pipRpc.trustAllPeers();
+            Object []params = new Object[]{value};
+            log.warn("calling remote SemaphoreServer.setValue({}) at url {}", value, Main.semaphoreServer.myUrl);
+            pipRpc.startRecording(new File("semaphoreserver.xml"));
+            pipRpc.execute("SemaphoreServer.setValue", params);
             pipRpc.stopRecording();
         }
     }
@@ -82,7 +93,7 @@ public class MainTest extends TestCase {
     protected void tearDown() throws Exception {
         pep.stopRecording();
         pep.term();
-        Main.ucon.term();
+        Main.term();
         super.tearDown();
     }
 
@@ -92,50 +103,91 @@ public class MainTest extends TestCase {
      */
     public void testLocalToggle() throws Exception {
         log.warn("testing local semaphore toggle");
+        Main.pipSemaphore.setPolling(false);
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        pep.assignCustomId(pepSession.getUuid(), null, "testLocalToggle");
         pep.startAccess(pepSession);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         Main.pipSemaphore.setValue(false);
         Thread.sleep(1000);
         assertEquals(true, revoked);
+        pep.endAccess(pepSession);
+        assertEquals(0, Main.pipSessions.getSessions());
     }
 
     public void testRemoteToggle() throws Exception {
         log.warn("testing remote semaphore toggle");
+        Main.pipSemaphore.setPolling(false);
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggle");
         pep.startAccess(pepSession);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        assertEquals(false, revoked);
         pep.setSemaphoreValue(false);
         Thread.sleep(1000);
         assertEquals(true, revoked);
+        pep.endAccess(pepSession);
+        assertEquals(0, Main.pipSessions.getSessions());
     }
     
     public void testConcurrentTryAccess() throws Exception {
+        Main.pipSemaphore.setPolling(false);
         List<PepSession> sessions = new ArrayList<>(11);
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 3; i++) {
             log.warn("testing concurrent try access {}", i);
             assertEquals(i, Main.pipSessions.getSessions());
             PepSession pepSession = pep.tryAccess(pepRequest);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+            pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggle."+i);
             assertEquals(i, Main.pipSessions.getSessions());
             pepSession = pep.startAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
             sessions.add(pepSession);
         }
-        log.info("ok, 10 concurrent tries admitted");
+        log.info("ok, 3 concurrent tries admitted");
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         pepSession = pep.startAccess(pepSession);
         assertEquals(PepResponse.DecisionEnum.Deny, pepSession.getDecision());
-        for(int i = 9; i >= 0; i--) {
+        for(int i = 2; i >= 0; i--) {
             log.warn("ending session {}", i);
             pepSession = sessions.get(i);
             assertEquals(i+1, Main.pipSessions.getSessions());
             pepSession = pep.endAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         }
+        assertEquals(0, Main.pipSessions.getSessions());
+    }
+    
+    public void testRemoteToggleWithExternalSemaphore() throws Exception {
+        log.warn("testing remote toggle with external semaphore");
+        Main.pipSemaphore.setPolling(true);
+        PepSession pepSession = pep.tryAccess(pepRequest);
+        assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggleWithExternalSemaphore");
+        pep.setExternalSemaphoreValue(false);
+        pep.startAccess(pepSession);
+        assertEquals(PepResponse.DecisionEnum.Deny, pepSession.getDecision());
+        pep.endAccess(pepSession);
+        assertEquals(0, Main.pipSessions.getSessions());
+    }
+
+    public void testRemoteRevocationWithExternalSemaphore() throws Exception {
+        log.warn("testing remote revocation with external semaphore");
+        Main.pipSemaphore.setPolling(true);
+        Main.ucon.setWatchdogPeriod(1);
+        PepSession pepSession = pep.tryAccess(pepRequest);
+        assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        pep.assignCustomId(pepSession.getUuid(), null, "testRemoteRevocationWithExternalSemaphore");
+        pep.startAccess(pepSession);
+        assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        assertEquals(false, revoked);
+        pep.setExternalSemaphoreValue(false);
+        Thread.sleep(2000);
+        assertEquals(true, revoked);
+        pep.endAccess(pepSession);
         assertEquals(0, Main.pipSessions.getSessions());
     }
 }

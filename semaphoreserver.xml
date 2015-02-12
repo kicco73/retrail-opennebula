@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <retrailRecorder>
 <record ms="1">
-<methodCall xmlns:ex="http://ws.apache.org/xmlrpc/namespaces/extensions"><methodName>PIPSemaphore.setValue</methodName><params><param><value><boolean>0</boolean></value></param></params></methodCall>
+<methodCall xmlns:ex="http://ws.apache.org/xmlrpc/namespaces/extensions"><methodName>SemaphoreServer.setValue</methodName><params><param><value><boolean>0</boolean></value></param></params></methodCall>
 <methodResponse xmlns:ex="http://ws.apache.org/xmlrpc/namespaces/extensions"><params><param><value><boolean>0</boolean></value></param></params></methodResponse>
 </record>
 </retrailRecorder>

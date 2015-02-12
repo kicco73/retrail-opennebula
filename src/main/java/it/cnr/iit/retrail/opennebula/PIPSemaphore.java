@@ -6,10 +6,15 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.commons.PepAttributeInterface;
 import it.cnr.iit.retrail.commons.PepRequestInterface;
+import it.cnr.iit.retrail.commons.PepSessionInterface;
 import it.cnr.iit.retrail.commons.Server;
+import it.cnr.iit.retrail.commons.impl.Client;
+import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
+import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.slf4j.LoggerFactory;
 
@@ -17,49 +22,63 @@ import org.slf4j.LoggerFactory;
  *
  * @author kicco
  */
-public class PIPSemaphore extends StandAlonePIP {
+public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol {
     protected boolean green = true;
+    protected boolean polling = false;
     final public String id = "Semaphore";
     final public String category = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
     final WebServer webServer;
     final URL url;
+    final Client client;
+    
 
-    public PIPSemaphore(URL myUrl, boolean green) throws Exception {
+    public PIPSemaphore(URL myUrl, boolean green, URL semUrl) throws Exception {
         super();
+        log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}; semServer at URL: {}", myUrl, id, green, getClass().getSimpleName(), semUrl);
         url = myUrl;
-        log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrl, id, green, getClass().getSimpleName());
+        client = new Client(semUrl);
         this.log = LoggerFactory.getLogger(PIPSemaphore.class);
         this.green = green;
-        this.webServer = Server.createWebServer(myUrl, PIPSemaphoreProtocol.class, getClass().getSimpleName());
-    }
-    
-    public synchronized void setValue(boolean green) throws Exception {
-        this.green = green;
-        log.warn("setting new value: {}, attributes {}", green);
-        //notifyChanges(listManagedAttributes());
-        // XXX FIXME Workaround
-        PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
-        notifyChanges(test);
-    }
-    
-    public synchronized boolean getValue() {
-        return green;
+        this.polling = false;
+        this.webServer = Server.createWebServer(myUrl, PIPSemaphoreProtocolProxy.class, getClass().getSimpleName());
     }
     
     @Override
     public void onBeforeTryAccess(PepRequestInterface request) {
-        log.warn("inserting attribute {}: {}", id, green);
-        PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
-        request.replace(test);
+        refresh(request, null);        
+        log.warn("inserted attribute {}: {}", id, green);
+    }
+  
+    private boolean getRemoteValue() throws XmlRpcException {
+        Object[] params = {};
+        //log.warn("invoking SemaphoreServer.getValue()");
+        green = (Boolean) client.execute("SemaphoreServer.getValue", params);
+        log.warn("green = {}", green);
+        return green;
     }
     
+    @Override
+    public void refresh(PepRequestInterface request, PepSessionInterface session) {
+        if(polling) {
+            try {
+                green = getRemoteValue();
+            } catch (XmlRpcException ex) {
+                log.error("while retrieving remote semaphore value: {}", ex);
+            }
+        }
+        PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
+        if(polling)
+            test.setExpires(new Date());
+        request.replace(test);
+    }
+
     @Override
     public void run() {
     }
     
     @Override
-    public void init() {
-        super.init();
+    public void init(UConInterface ucon) {
+        super.init(ucon);
         try {
             // start server
             webServer.start();
@@ -74,4 +93,44 @@ public class PIPSemaphore extends StandAlonePIP {
         super.term();
     }
 
+    @Override
+    public synchronized boolean setPolling(boolean value) throws Exception {
+        log.warn("external semaphore polling now {}", value? "enabled" : "disabled");
+        polling = value;
+        return polling;
+    }
+
+    @Override
+    public synchronized boolean isPolling() {
+        return polling;
+    }
+
+    @Override
+    public synchronized boolean setValue(boolean green) throws Exception {
+        if(polling)
+            throw new RuntimeException("can't directly set semaphore value because polling is enabled");
+        this.green = green;
+        log.warn("setting new value: {}, attributes {}", green);
+        //notifyChanges(listManagedAttributes());
+        // XXX FIXME Workaround
+        PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
+        notifyChanges(test);
+        return this.green;
+    }
+    
+    @Override
+    public synchronized boolean getValue() throws Exception {
+        return polling? getRemoteValue() : green;
+    }
+
+    @Override
+    public int setWatchdogPeriod(int newWatchdogPeriod) {
+        getUCon().setWatchdogPeriod(newWatchdogPeriod);
+        return getUCon().getWatchdogPeriod();
+    }
+
+    @Override
+    public int getWatchdogPeriod() {
+        return getUCon().getWatchdogPeriod();
+    }
 }
