@@ -6,6 +6,7 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.client.impl.PEP;
 import it.cnr.iit.retrail.commons.impl.Client;
+import it.cnr.iit.retrail.commons.impl.PepAttribute;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
@@ -29,6 +30,7 @@ public class MainTest extends TestCase {
     private boolean revoked = false;
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
+    private final Object revokeMonitor = new Object();
     
     private class PEPtest extends PEP {
 
@@ -44,8 +46,12 @@ public class MainTest extends TestCase {
         @Override
         public void onRevokeAccess(PepSession session) {
             log.warn("revocation received: {}", session);
-            revoked = true;
+            synchronized(revokeMonitor) {
+                revoked = true;
+                revokeMonitor.notifyAll();
+            }
         }
+        
         public void setSemaphoreValue(boolean value) throws Exception {
             Client pipRpc = new Client(Main.pipSemaphore.url);
             pipRpc.trustAllPeers();
@@ -54,6 +60,19 @@ public class MainTest extends TestCase {
             pipRpc.startRecording(new File("pipsemaphore.xml"));
             pipRpc.execute("PIPSemaphore.setValue", params);
             pipRpc.stopRecording();
+        }
+        
+        public void setSemaphoreValueViaPepInterface(PepSession session, boolean value) throws Exception {
+            PepRequest req = new PepRequest();
+            PepAttribute attribute = new PepAttribute(
+                Main.pipSemaphore.id,
+                PepAttribute.DATATYPES.BOOLEAN,
+                Boolean.toString(value),
+                "issuer",
+                Main.pipSemaphore.category);
+            req.add(attribute);
+            log.warn("calling remote pep.applyChanges({}, {})", req, value);
+            pep.applyChanges(session, req);
         }
         
         public void setExternalSemaphoreValue(boolean value) throws Exception {
@@ -127,6 +146,26 @@ public class MainTest extends TestCase {
         assertEquals(false, revoked);
         pep.setSemaphoreValue(false);
         Thread.sleep(1000);
+        assertEquals(true, revoked);
+        pep.endAccess(pepSession);
+        assertEquals(0, Main.pipSessions.getSessions());
+    }
+    
+        public void testRemoteToggleViaPepInterface() throws Exception {
+        log.warn("testing remote semaphore toggle through the basic Pep Interface");
+        Main.pipSemaphore.setPolling(false);
+        Main.ucon.setWatchdogPeriod(0);
+        PepSession pepSession = pep.tryAccess(pepRequest);
+        assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggleViaPepInterface");
+        pep.startAccess(pepSession);
+        assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
+        assertEquals(false, revoked);
+        pep.setSemaphoreValueViaPepInterface(pepSession, false);
+        synchronized(revokeMonitor) {
+            if(!revoked)
+                revokeMonitor.wait();
+        }
         assertEquals(true, revoked);
         pep.endAccess(pepSession);
         assertEquals(0, Main.pipSessions.getSessions());
