@@ -6,7 +6,6 @@
 
 package it.cnr.iit.retrail.opennebula;
 
-import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.impl.UCon;
 import it.cnr.iit.retrail.server.impl.UConFactory;
 import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
@@ -31,22 +30,22 @@ public class Main {
     
     static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws Exception {
         log.warn("using internally packaged policy set");
-        ucon.setPolicy(UConInterface.PolicyEnum.PRE, Main.class.getResourceAsStream(prePath));
-        ucon.setPolicy(UConInterface.PolicyEnum.ON, Main.class.getResourceAsStream(onPath));
-        ucon.setPolicy(UConInterface.PolicyEnum.POST, Main.class.getResourceAsStream(postPath));
-        ucon.setPolicy(UConInterface.PolicyEnum.TRYSTART, Main.class.getResourceAsStream(tryStartPath));
-        ucon.setPolicy(UConInterface.PolicyEnum.TRYEND, Main.class.getResourceAsStream(tryEndPath));
+        ucon.setPolicy("init-tryaccess", Main.class.getResourceAsStream(prePath));
+        ucon.setPolicy("ongoing-ongoingaccess", Main.class.getResourceAsStream(onPath));
+        ucon.setPolicy("ongoing-endaccess", Main.class.getResourceAsStream(postPath));
+        ucon.setPolicy("try-startaccess", Main.class.getResourceAsStream(tryStartPath));
+        ucon.setPolicy("try-endaccess", Main.class.getResourceAsStream(tryEndPath));
     }
     
     static private void readPoliciesFromDir(String dirPath) throws Exception {
         File f = new File(dirPath);
         dirPath = "file:"+f.getAbsolutePath();
         log.warn("using file-system policy set located at dir: {}", f.getAbsolutePath());
-        ucon.setPolicy(UConInterface.PolicyEnum.PRE, new URL(dirPath+"/opennebula-pre.xml"));
-        ucon.setPolicy(UConInterface.PolicyEnum.ON, new URL(dirPath+"/opennebula-on.xml"));
-        ucon.setPolicy(UConInterface.PolicyEnum.POST, new URL(dirPath+"/opennebula-post.xml"));
-        ucon.setPolicy(UConInterface.PolicyEnum.TRYSTART, new URL(dirPath+"/opennebula-trystart.xml"));
-        ucon.setPolicy(UConInterface.PolicyEnum.TRYEND, new URL(dirPath+"/opennebula-tryend.xml"));
+        ucon.setPolicy("init-tryaccess", new URL(dirPath+"/opennebula-pre.xml"));
+        ucon.setPolicy("ongoing-ongoingaccess", new URL(dirPath+"/opennebula-on.xml"));
+        ucon.setPolicy("ongoing-endaccess", new URL(dirPath+"/opennebula-post.xml"));
+        ucon.setPolicy("try-startaccess", new URL(dirPath+"/opennebula-trystart.xml"));
+        ucon.setPolicy("try-endaccess", new URL(dirPath+"/opennebula-tryend.xml"));
     }
     
     static public void main(String[] argv) throws Exception {
@@ -68,9 +67,9 @@ public class Main {
             ucon.maxMissedHeartbeats = 3600;
             ucon.setWatchdogPeriod(0);
             pipSemaphore = new PIPSemaphore(new URL(pipUrlString), true, new URL(semUrlString));
-            ucon.addPIP(pipSemaphore);
+            ucon.getPIPChain().add(pipSemaphore);
             pipSessions = new PIPSessions();
-            ucon.addPIP(pipSessions);
+            ucon.getPIPChain().add(pipSessions);
             ucon.init();            
         }
 
