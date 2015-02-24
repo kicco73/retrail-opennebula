@@ -10,7 +10,9 @@ import it.cnr.iit.retrail.server.impl.UCon;
 import it.cnr.iit.retrail.server.impl.UConFactory;
 import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
+import jdk.nashorn.internal.objects.NativeDebug;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -28,26 +30,6 @@ public class Main {
     static public PIPSessions pipSessions = null;
     static public SemaphoreServer semaphoreServer = null;
     
-    static private void changePoliciesTo(String prePath, String onPath, String postPath, String tryStartPath, String tryEndPath) throws Exception {
-        log.warn("using internally packaged policy set");
-        ucon.setPolicy("init-tryaccess", Main.class.getResourceAsStream(prePath));
-        ucon.setPolicy("ongoing-ongoingaccess", Main.class.getResourceAsStream(onPath));
-        ucon.setPolicy("ongoing-endaccess", Main.class.getResourceAsStream(postPath));
-        ucon.setPolicy("try-startaccess", Main.class.getResourceAsStream(tryStartPath));
-        ucon.setPolicy("try-endaccess", Main.class.getResourceAsStream(tryEndPath));
-    }
-    
-    static private void readPoliciesFromDir(String dirPath) throws Exception {
-        File f = new File(dirPath);
-        dirPath = "file:"+f.getAbsolutePath();
-        log.warn("using file-system policy set located at dir: {}", f.getAbsolutePath());
-        ucon.setPolicy("init-tryaccess", new URL(dirPath+"/opennebula-pre.xml"));
-        ucon.setPolicy("ongoing-ongoingaccess", new URL(dirPath+"/opennebula-on.xml"));
-        ucon.setPolicy("ongoing-endaccess", new URL(dirPath+"/opennebula-post.xml"));
-        ucon.setPolicy("try-startaccess", new URL(dirPath+"/opennebula-trystart.xml"));
-        ucon.setPolicy("try-endaccess", new URL(dirPath+"/opennebula-tryend.xml"));
-    }
-    
     static public void main(String[] argv) throws Exception {
             log.info("Setting up Semaphore server...");
             semaphoreServer = new SemaphoreServer(new URL(semUrlString), true);
@@ -55,15 +37,14 @@ public class Main {
 
             log.info("Setting up Ucon server...");
             ucon = (UCon) UConFactory.getInstance(new URL(pdpUrlString));
-            if(argv != null && argv.length > 0)
-                readPoliciesFromDir(argv[0]);
-            else
-                changePoliciesTo("/META-INF/policies/opennebula-pre.xml",
-                                 "/META-INF/policies/opennebula-on.xml",
-                                 "/META-INF/policies/opennebula-post.xml",
-                                 "/META-INF/policies/opennebula-trystart.xml",
-                                 "/META-INF/policies/opennebula-tryend.xml"
-                );
+            if(argv != null && argv.length > 0) {
+                File f = new File(argv[0]);
+                log.warn("using file-system behaviour file located at: {}", f.getAbsolutePath());
+                ucon.loadBehaviour(new FileInputStream(f));
+            } else {
+                log.warn("using internally packaged policy set");
+                ucon.loadBehaviour(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
+            }
             ucon.maxMissedHeartbeats = 3600;
             ucon.setWatchdogPeriod(0);
             pipSemaphore = new PIPSemaphore(new URL(pipUrlString), true, new URL(semUrlString));

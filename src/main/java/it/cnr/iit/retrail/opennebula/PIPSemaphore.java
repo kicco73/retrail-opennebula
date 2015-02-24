@@ -51,7 +51,7 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     public void fireEvent(Event e) {
         switch (e.type) {
             case beforeTryAccess:
-                refresh(e.request, null);
+                //refresh(e.request, null);
                 break;
             case beforeApplyChanges:
                 PepAttributeInterface a = e.request.getAttribute(category, id);
