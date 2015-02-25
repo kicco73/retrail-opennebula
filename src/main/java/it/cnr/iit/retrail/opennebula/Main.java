@@ -40,10 +40,10 @@ public class Main {
             if(argv != null && argv.length > 0) {
                 File f = new File(argv[0]);
                 log.warn("using file-system behaviour file located at: {}", f.getAbsolutePath());
-                ucon.loadBehaviour(new FileInputStream(f));
+                ucon.loadConfiguration(new FileInputStream(f));
             } else {
                 log.warn("using internally packaged policy set");
-                ucon.loadBehaviour(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
+                ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
             }
             ucon.maxMissedHeartbeats = 3600;
             ucon.setWatchdogPeriod(0);

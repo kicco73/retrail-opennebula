@@ -4,20 +4,17 @@
  */
 package it.cnr.iit.retrail.opennebula;
 
-import it.cnr.iit.retrail.commons.DomUtils;
 import it.cnr.iit.retrail.commons.PepAttributeInterface;
 import it.cnr.iit.retrail.commons.PepRequestInterface;
 import it.cnr.iit.retrail.commons.PepSessionInterface;
 import it.cnr.iit.retrail.commons.Server;
 import it.cnr.iit.retrail.commons.impl.Client;
 import it.cnr.iit.retrail.server.UConInterface;
-import it.cnr.iit.retrail.server.pip.Event;
+import it.cnr.iit.retrail.server.pip.SystemEvent;
 import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.slf4j.LoggerFactory;
@@ -48,11 +45,8 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     }
 
     @Override
-    public void fireEvent(Event e) {
+    public void fireSystemEvent(SystemEvent e) {
         switch (e.type) {
-            case beforeTryAccess:
-                //refresh(e.request, null);
-                break;
             case beforeApplyChanges:
                 PepAttributeInterface a = e.request.getAttribute(category, id);
                 if (a != null && polling) {
