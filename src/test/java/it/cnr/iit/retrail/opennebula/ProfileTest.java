@@ -11,8 +11,6 @@ import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 import junit.framework.TestCase;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class ProfileTest extends TestCase {
 
     static final org.slf4j.Logger log = LoggerFactory.getLogger(ProfileTest.class);
-    static final String pepUrlString = "http://0.0.0.0:9081";
+    static final String pepUrlString = "http://0.0.0.0:9095";
     private int revoked = 0;
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
@@ -135,7 +133,7 @@ public class ProfileTest extends TestCase {
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("ok, concurrent sessions opened; total startAccess time [S{}] = {} ms, normalized = {} ms",  n, elapsedMs, elapsedMs/n);
+        log.info("ok, concurrent sessions opened; total startAccess time [St{}] = {} ms, normalized = {} ms",  n, elapsedMs, elapsedMs/n);
     }
 
 
@@ -161,10 +159,10 @@ public class ProfileTest extends TestCase {
     }
 
     private void profileRevocationsViaPIP(int n) throws Exception {
+        Main.pipSemaphore.setPolling(false);
         openConcurrentSessions(n);
         assignConcurrentSessions();
         startConcurrentSessions();
-        Main.pipSemaphore.setPolling(false);
         long startMs = System.currentTimeMillis();
         setSemaphoreValueViaPIP(false);
         log.info("waiting for {} revocations", n);
@@ -174,7 +172,7 @@ public class ProfileTest extends TestCase {
             }
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("all {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms", n, n, elapsedMs);
+        log.info("all {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms, normalized = {} ms", n, n, elapsedMs, elapsedMs/n);
         closeConcurrentSessions();
     }
 

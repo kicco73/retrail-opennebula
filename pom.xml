@@ -17,6 +17,7 @@
             <groupId>it.cnr.iit.retrail</groupId>
             <artifactId>server</artifactId>
             <version>2.0-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>it.cnr.iit.retrail</groupId>
@@ -59,19 +60,10 @@
                 </executions>
                 <configuration>
                     <script>
-                        echo -n "killing previously running retrail server on port 8080 (if any)..."
-                        netstat --listening --programs -n 2> /dev/null | grep 8080 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
+                        echo -n "killing previously running retrail server on port 908* (if any)..."
+                        netstat --listening --programs -n 2> /dev/null | grep 908* | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
                         echo done.
-                        echo -n "killing previously running retrail client on port 8081 (if any)..."
-                        netstat --listening --programs -n 2> /dev/null | grep 8081 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
-                        echo done.
-                        echo -n "killing previously running retrail pip semaphore on port 8082 (if any)..."
-                        netstat --listening --programs -n 2> /dev/null | grep 8082 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
-                        echo done.
-                        echo -n "killing previously running retrail semaphore server on port 8083 (if any)..."
-                        netstat --listening --programs -n 2> /dev/null | grep 8083 | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
-                        echo done.
-                        rm -rf retrail.derby
+                        rm -rf retrail2.derby
                         exit 0
                     </script>
                 </configuration>
