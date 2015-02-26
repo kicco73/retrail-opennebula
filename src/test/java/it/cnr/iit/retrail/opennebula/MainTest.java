@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MainTest extends TestCase {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(MainTest.class);
-    static final String pepUrlString = "http://0.0.0.0:8081";
+    static final String pepUrlString = "http://0.0.0.0:9081";
     private boolean revoked = false;
     private PEPtest pep = null;
     private PepRequest pepRequest = null;

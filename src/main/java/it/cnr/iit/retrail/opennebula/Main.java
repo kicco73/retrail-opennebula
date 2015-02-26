@@ -12,7 +12,6 @@ import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
-import jdk.nashorn.internal.objects.NativeDebug;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -22,9 +21,9 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
-    static public final String pdpUrlString = "http://0.0.0.0:8080";
-    static public final String pipUrlString = "http://0.0.0.0:8082";
-    static public final String semUrlString = "http://0.0.0.0:8083";
+    static public final String pdpUrlString = "http://0.0.0.0:9080";
+    static public final String pipUrlString = "http://0.0.0.0:9082";
+    static public final String semUrlString = "http://0.0.0.0:9083";
     static public UCon ucon = null;
     static public PIPSemaphore pipSemaphore = null;
     static public PIPSessions pipSessions = null;
