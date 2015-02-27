@@ -150,7 +150,7 @@ public class MainTest extends TestCase {
         pep.endAccess(pepSession);
         assertEquals(0, Main.pipSessions.getSessions());
     }
-    
+    /*
         public void testRemoteToggleViaPepInterface() throws Exception {
         log.warn("testing remote semaphore toggle through the basic Pep Interface");
         Main.pipSemaphore.setPolling(false);
@@ -170,7 +170,7 @@ public class MainTest extends TestCase {
         pep.endAccess(pepSession);
         assertEquals(0, Main.pipSessions.getSessions());
     }
-    
+    */
     public void testConcurrentTryAccess() throws Exception {
         Main.pipSemaphore.setPolling(false);
         List<PepSession> sessions = new ArrayList<>(11);
