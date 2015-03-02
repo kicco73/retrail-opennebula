@@ -71,7 +71,7 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
 
     @Override
     public void refresh(PepRequestInterface request, PepSessionInterface session) {
-        log.warn("refreshing semaphore value");
+        //log.warn("refreshing semaphore value");
         if (polling) {
             try {
                 green = getRemoteValue();

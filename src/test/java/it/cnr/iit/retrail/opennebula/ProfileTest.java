@@ -159,7 +159,7 @@ public class ProfileTest extends TestCase {
             }
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("all {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms, normalized = {} ms", n, n, elapsedMs, elapsedMs/n);
+        log.info("{} of {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms, normalized = {} ms", revoked, n, n, elapsedMs, elapsedMs/n);
         closeConcurrentSessions();
     }
 
