@@ -24,24 +24,19 @@ import org.slf4j.LoggerFactory;
  * @author kicco
  */
 public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol {
-
     protected boolean green = true;
     protected boolean polling = false;
-    final public String id = "Semaphore";
-    final public String category = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    static final public String id = "Semaphore";
+    static final public String category = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    static public final String myUrlString = "http://0.0.0.0:9082";
     final WebServer webServer;
-    final URL url;
-    final Client client;
+    private final Client client;
 
-    public PIPSemaphore(URL myUrl, boolean green, URL semUrl) throws Exception {
-        super();
-        log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}; semServer at URL: {}", myUrl, id, green, getClass().getSimpleName(), semUrl);
-        url = myUrl;
-        client = new Client(semUrl);
+    public PIPSemaphore() throws Exception {
         this.log = LoggerFactory.getLogger(PIPSemaphore.class);
-        this.green = green;
-        this.polling = false;
-        this.webServer = Server.createWebServer(myUrl, PIPSemaphoreProtocolProxy.class, getClass().getSimpleName());
+        log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrlString, id, green, getClass().getSimpleName());
+        this.webServer = Server.createWebServer(new URL(myUrlString), PIPSemaphoreProtocolProxy.class, getClass().getSimpleName());
+        client = new Client(new URL(SemaphoreServer.myUrlString));
     }
 
     @Override
@@ -68,7 +63,7 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
 
     private boolean getRemoteValue() throws XmlRpcException {
         Object[] params = {};
-        //log.warn("invoking SemaphoreServer.getValue()");
+        log.warn("invoking SemaphoreServer.getValue()");
         green = (Boolean) client.execute("SemaphoreServer.getValue", params);
         log.warn("green = {}", green);
         return green;
@@ -76,6 +71,7 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
 
     @Override
     public void refresh(PepRequestInterface request, PepSessionInterface session) {
+        log.warn("refreshing semaphore value");
         if (polling) {
             try {
                 green = getRemoteValue();

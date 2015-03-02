@@ -6,7 +6,6 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.client.impl.PEP;
 import it.cnr.iit.retrail.commons.impl.Client;
-import it.cnr.iit.retrail.commons.impl.PepAttribute;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class ProfileTest extends TestCase {
 
     static final org.slf4j.Logger log = LoggerFactory.getLogger(ProfileTest.class);
-    static final String pepUrlString = "http://0.0.0.0:9095";
+    static final String pepUrlString = "http://0.0.0.0:9081";
     private int revoked = 0;
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
@@ -50,19 +49,6 @@ public class ProfileTest extends TestCase {
             }
         }
 
-        public void setSemaphoreValue(PepSession session, boolean value) throws Exception {
-            log.info("turning semaphore to {} via PEP interface", value);
-            PepRequest req = new PepRequest();
-            PepAttribute attribute = new PepAttribute(
-                    Main.pipSemaphore.id,
-                    PepAttribute.DATATYPES.BOOLEAN,
-                    Boolean.toString(value),
-                    "issuer",
-                    Main.pipSemaphore.category);
-            req.add(attribute);
-            log.warn("calling remote pep.applyChanges({}, {})", req, value);
-            pep.applyChanges(session, req);
-        }
     }
 
     public ProfileTest(String testName) {
@@ -76,7 +62,7 @@ public class ProfileTest extends TestCase {
         log.warn("creating ucon server");
         Main.main(null);
         log.warn("creating pep client");
-        pep = new PEPtest(new URL(Main.pdpUrlString), new URL(pepUrlString));
+        pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
         pep.setAccessRecoverableByDefault(false);
         pep.init();
         //pep.startRecording(new File("retrail-opennebula.xml"));
@@ -138,10 +124,10 @@ public class ProfileTest extends TestCase {
 
 
     private void setSemaphoreValueViaPIP(boolean value) throws Exception {
-        Client pipRpc = new Client(Main.pipSemaphore.url);
+        Client pipRpc = new Client(new URL(PIPSemaphore.myUrlString));
         pipRpc.trustAllPeers();
         Object[] params = new Object[]{value};
-        log.warn("calling remote PIPSemaphore.setValue({}) at url {}", value, Main.pipSemaphore.url);
+        log.warn("calling remote PIPSemaphore.setValue({}) at url {}", value, PIPSemaphore.myUrlString);
         pipRpc.execute("PIPSemaphore.setValue", params);
     }
 
@@ -169,6 +155,7 @@ public class ProfileTest extends TestCase {
         synchronized (revokeMonitor) {
             while (revoked < n) {
                 revokeMonitor.wait();
+                log.info("received {} revocations", n);
             }
         }
         long elapsedMs = System.currentTimeMillis() - startMs;

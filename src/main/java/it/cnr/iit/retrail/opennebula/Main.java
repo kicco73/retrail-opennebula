@@ -11,6 +11,7 @@ import it.cnr.iit.retrail.server.impl.UConFactory;
 import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URL;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +23,9 @@ import org.slf4j.LoggerFactory;
 public class Main {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     static public final String pdpUrlString = "http://0.0.0.0:9080";
-    static public final String pipUrlString = "http://0.0.0.0:9082";
-    static public final String semUrlString = "http://0.0.0.0:9083";
+
+    static final String defaultKeystoreName = "/META-INF/keystore.jks";
+    static final String defaultKeystorePassword = "uconas4wc";
     static public UCon ucon = null;
     static public PIPSemaphore pipSemaphore = null;
     static public PIPSessions pipSessions = null;
@@ -31,11 +33,17 @@ public class Main {
     
     static public void main(String[] argv) throws Exception {
             log.info("Setting up Semaphore server...");
-            semaphoreServer = new SemaphoreServer(new URL(semUrlString), true);
+            semaphoreServer = new SemaphoreServer();
             semaphoreServer.init();
 
             log.info("Setting up Ucon server...");
-            ucon = (UCon) UConFactory.getInstance(new URL(pdpUrlString));
+            URL pdpUrl = new URL(pdpUrlString);
+            ucon = UConFactory.getInstance(pdpUrl);
+            // Telling server to use a self-signed certificate and
+            // trust any client.
+            InputStream ks = Main.class.getResourceAsStream(defaultKeystoreName);
+            assert(ks != null);
+            ucon.trustAllPeers(ks, defaultKeystorePassword);
             if(argv != null && argv.length > 0) {
                 File f = new File(argv[0]);
                 log.warn("using file-system behaviour file located at: {}", f.getAbsolutePath());
@@ -46,11 +54,10 @@ public class Main {
             }
             ucon.maxMissedHeartbeats = 3600;
             ucon.setWatchdogPeriod(0);
-            pipSemaphore = new PIPSemaphore(new URL(pipUrlString), true, new URL(semUrlString));
-            ucon.getPIPChain().add(pipSemaphore);
-            pipSessions = new PIPSessions();
-            ucon.getPIPChain().add(pipSessions);
-            ucon.init();            
+            pipSessions = (PIPSessions) ucon.getPIPChain().get(0);
+            pipSemaphore = (PIPSemaphore) ucon.getPIPChain().get(1);
+            // start server
+            ucon.init();
         }
 
     static public void term() throws InterruptedException {
