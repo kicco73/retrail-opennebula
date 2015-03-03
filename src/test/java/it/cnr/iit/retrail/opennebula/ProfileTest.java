@@ -9,6 +9,7 @@ import it.cnr.iit.retrail.commons.impl.Client;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
+import java.io.InputStream;
 import java.net.URL;
 import junit.framework.TestCase;
 import org.junit.FixMethodOrder;
@@ -64,6 +65,8 @@ public class ProfileTest extends TestCase {
         log.warn("creating pep client");
         pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
         pep.setAccessRecoverableByDefault(false);
+        InputStream ks = MainTest.class.getResourceAsStream(Main.defaultKeystoreName);
+        pep.trustAllPeers(ks, Main.defaultKeystorePassword);
         pep.init();
         //pep.startRecording(new File("retrail-opennebula.xml"));
         pepRequest = PepRequest.newInstance(

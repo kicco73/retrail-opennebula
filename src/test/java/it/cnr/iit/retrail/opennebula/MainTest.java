@@ -10,6 +10,7 @@ import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MainTest extends TestCase {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(MainTest.class);
-    static final String pepUrlString = "http://0.0.0.0:9081";
+    static final String pepUrlString = "https://0.0.0.0:9081";
     private int revoked = 0;
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
@@ -64,8 +65,13 @@ public class MainTest extends TestCase {
         log.warn("creating ucon server");
         Main.main(null);
         log.warn("creating pep client");
-        pep = new PEPtest(new URL(Main.pdpUrlString), new URL(pepUrlString));
+        pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
         pep.setAccessRecoverableByDefault(false);
+        pep.trustAllPeers();
+        // Allowing client to accept a self-signed certificate;
+        // allow callbacks to the pep for untrusted ucons.
+        InputStream ks = MainTest.class.getResourceAsStream(Main.defaultKeystoreName);
+        pep.trustAllPeers(ks, Main.defaultKeystorePassword);
         pep.init();
         pep.startRecording(new File("retrail-opennebula.xml"));
         pepRequest = PepRequest.newInstance(

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ucon:Config xmlns:ucon="http://security.iit.cnr.it/retrail/ucon">
+    <ucon:Property name="watchdogPeriod">0</ucon:Property>
+    <ucon:Property name="maxMissedHeartbeats">3600</ucon:Property>
     <ucon:Behaviour>
         <ucon:States>
             <ucon:State name="INIT" type="BEGIN"/>
