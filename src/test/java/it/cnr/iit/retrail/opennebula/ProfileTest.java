@@ -9,6 +9,7 @@ import it.cnr.iit.retrail.commons.impl.Client;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
+import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.InputStream;
 import java.net.URL;
 import junit.framework.TestCase;
@@ -29,7 +30,9 @@ public class ProfileTest extends TestCase {
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
     private final Object revokeMonitor = new Object();
-
+    private PIPSemaphore pipSemaphore;
+    private PIPSessions pipSessions;
+    
     private class PEPtest extends PEP {
 
         public PEPtest(URL pdpUrl, URL myUrl) throws Exception {
@@ -62,6 +65,8 @@ public class ProfileTest extends TestCase {
         revoked = 0;
         log.warn("creating ucon server");
         Main.main(null);
+        pipSemaphore = (PIPSemaphore) Main.ucon.getPIPChain().get("semaphore");
+        pipSessions = (PIPSessions) Main.ucon.getPIPChain().get("sessions");
         log.warn("creating pep client");
         pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
         pep.setAccessRecoverableByDefault(false);
@@ -85,7 +90,7 @@ public class ProfileTest extends TestCase {
     }
 
     private void openConcurrentSessions(int n) throws Exception {
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         log.info("sequentially opening {} concurrent sessions", n);
         long startMs = System.currentTimeMillis();
         for (int i = 0; i < n; i++) {
@@ -99,7 +104,7 @@ public class ProfileTest extends TestCase {
     
     private void assignConcurrentSessions() throws Exception {
         int n = pep.getSessions().size();
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         log.info("sequentially starting {} concurrent sessions");
         long startMs = System.currentTimeMillis();
         int i = 0;
@@ -113,7 +118,7 @@ public class ProfileTest extends TestCase {
     
     private void startConcurrentSessions() throws Exception {
         int n = pep.getSessions().size();
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         log.info("sequentially starting concurrent sessions");
         long startMs = System.currentTimeMillis();
         for (PepSession pepSession: pep.getSessions()) {
@@ -144,11 +149,11 @@ public class ProfileTest extends TestCase {
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
         log.info("all {} sessions closed; total endAccess time [E{}] = {} ms, normalized = {} ms", n, n, elapsedMs, elapsedMs/n);
-        assertEquals(0, Main.pipSessions.getSessions());
+        assertEquals(0, pipSessions.getSessions());
     }
 
     private void profileRevocationsViaPIP(int n) throws Exception {
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         openConcurrentSessions(n);
         assignConcurrentSessions();
         startConcurrentSessions();

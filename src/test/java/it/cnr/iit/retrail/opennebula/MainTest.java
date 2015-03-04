@@ -9,6 +9,7 @@ import it.cnr.iit.retrail.commons.impl.Client;
 import it.cnr.iit.retrail.commons.impl.PepRequest;
 import it.cnr.iit.retrail.commons.impl.PepResponse;
 import it.cnr.iit.retrail.commons.impl.PepSession;
+import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -31,7 +32,8 @@ public class MainTest extends TestCase {
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
     private final Object revokeMonitor = new Object();
-    
+    private PIPSemaphore pipSemaphore;
+    private PIPSessions pipSessions;
     private class PEPtest extends PEP {
 
         public PEPtest(URL pdpUrl, URL myUrl) throws Exception {
@@ -64,6 +66,8 @@ public class MainTest extends TestCase {
         revoked = 0;
         log.warn("creating ucon server");
         Main.main(null);
+        pipSemaphore = (PIPSemaphore) Main.ucon.getPIPChain().get("semaphore");
+        pipSessions = (PIPSessions) Main.ucon.getPIPChain().get("sessions");
         log.warn("creating pep client");
         pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
         pep.setAccessRecoverableByDefault(false);
@@ -115,22 +119,22 @@ public class MainTest extends TestCase {
     
     public void testLocalToggle() throws Exception {
         log.warn("testing local semaphore toggle");
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         pep.assignCustomId(pepSession.getUuid(), null, "testLocalToggle");
         pep.startAccess(pepSession);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
-        Main.pipSemaphore.setValue(false);
+        pipSemaphore.setValue(false);
         Thread.sleep(1000);
         assertEquals(1, revoked);
         pep.endAccess(pepSession);
-        assertEquals(0, Main.pipSessions.getSessions());
+        assertEquals(0, pipSessions.getSessions());
     }
 
     public void testRemoteToggle() throws Exception {
         log.warn("testing remote semaphore toggle");
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggle");
@@ -141,19 +145,19 @@ public class MainTest extends TestCase {
         Thread.sleep(1000);
         assertEquals(1, revoked);
         pep.endAccess(pepSession);
-        assertEquals(0, Main.pipSessions.getSessions());
+        assertEquals(0, pipSessions.getSessions());
     }
 
     public void testConcurrentTryAccess() throws Exception {
-        Main.pipSemaphore.setPolling(false);
+        pipSemaphore.setPolling(false);
         List<PepSession> sessions = new ArrayList<>(11);
         for(int i = 0; i < 3; i++) {
             log.warn("testing concurrent try access {}", i);
-            assertEquals(i, Main.pipSessions.getSessions());
+            assertEquals(i, pipSessions.getSessions());
             PepSession pepSession = pep.tryAccess(pepRequest);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
             pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggle."+i);
-            assertEquals(i, Main.pipSessions.getSessions());
+            assertEquals(i, pipSessions.getSessions());
             pepSession = pep.startAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
             sessions.add(pepSession);
@@ -166,15 +170,15 @@ public class MainTest extends TestCase {
         for(int i = 2; i >= 0; i--) {
             log.warn("ending session {}", i);
             pepSession = sessions.get(i);
-            assertEquals(i+1, Main.pipSessions.getSessions());
+            assertEquals(i+1, pipSessions.getSessions());
             pepSession = pep.endAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         }
-        assertEquals(0, Main.pipSessions.getSessions());
+        assertEquals(0, pipSessions.getSessions());
     }
     public void testRemoteToggleWithExternalSemaphore() throws Exception {
         log.warn("testing remote toggle with external semaphore");
-        Main.pipSemaphore.setPolling(true);
+        pipSemaphore.setPolling(true);
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggleWithExternalSemaphore");
@@ -182,12 +186,12 @@ public class MainTest extends TestCase {
         pep.startAccess(pepSession);
         assertEquals(PepResponse.DecisionEnum.Deny, pepSession.getDecision());
         pep.endAccess(pepSession);
-        assertEquals(0, Main.pipSessions.getSessions());
+        assertEquals(0, pipSessions.getSessions());
     }
 
     public void testRemoteRevocationWithExternalSemaphore() throws Exception {
         log.warn("testing remote revocation with external semaphore");
-        Main.pipSemaphore.setPolling(true);
+        pipSemaphore.setPolling(true);
         Main.ucon.setWatchdogPeriod(1);
         PepSession pepSession = pep.tryAccess(pepRequest);
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
@@ -200,6 +204,6 @@ public class MainTest extends TestCase {
         Thread.sleep(2000);
         assertEquals(1, revoked);
         pep.endAccess(pepSession);
-        assertEquals(0, Main.pipSessions.getSessions());
+        assertEquals(0, pipSessions.getSessions());
     }
 }

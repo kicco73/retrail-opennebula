@@ -9,8 +9,10 @@ import it.cnr.iit.retrail.commons.PepRequestInterface;
 import it.cnr.iit.retrail.commons.PepSessionInterface;
 import it.cnr.iit.retrail.commons.Server;
 import it.cnr.iit.retrail.commons.impl.Client;
+import static it.cnr.iit.retrail.opennebula.Main.ucon;
 import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.pip.SystemEvent;
+import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
@@ -31,12 +33,18 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     static public final String myUrlString = "http://0.0.0.0:9082";
     final WebServer webServer;
     private final Client client;
-
+    private static PIPSemaphore instance;
+    
+    static public PIPSemaphore getInstance() {
+        return instance;
+    }
+    
     public PIPSemaphore() throws Exception {
         this.log = LoggerFactory.getLogger(PIPSemaphore.class);
         log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrlString, id, green, getClass().getSimpleName());
         this.webServer = Server.createWebServer(new URL(myUrlString), PIPSemaphoreProtocolProxy.class, getClass().getSimpleName());
         client = new Client(new URL(SemaphoreServer.myUrlString));
+        instance = this;
     }
 
     @Override

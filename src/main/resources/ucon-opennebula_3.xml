@@ -2,6 +2,11 @@
 <ucon:Config xmlns:ucon="http://security.iit.cnr.it/retrail/ucon">
     <ucon:Property name="watchdogPeriod">0</ucon:Property>
     <ucon:Property name="maxMissedHeartbeats">3600</ucon:Property>
+    <ucon:PIPChain>
+        <ucon:PIP class="it.cnr.iit.retrail.opennebula.PIPSemaphore">
+            <ucon:Property name="uuid">semaphore</ucon:Property>
+        </ucon:PIP>
+    </ucon:PIPChain>
     <ucon:Behaviour>
         <ucon:States>
             <ucon:State name="INIT" type="BEGIN"/>
@@ -28,13 +33,6 @@
                                              DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
-                                    </Match>
-                                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
-                                        <AttributeDesignator AttributeId="openSessions" 
-                                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
-                                        </AttributeDesignator>
-                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">1001</AttributeValue>
                                     </Match>
                                 </AllOf>
                             </AnyOf>
@@ -64,13 +62,6 @@
                                              DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
-                                    </Match>
-                                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
-                                        <AttributeDesignator AttributeId="openSessions" 
-                                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
-                                        </AttributeDesignator>
-                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">1001</AttributeValue>
                                     </Match>
                                 </AllOf>
                             </AnyOf>

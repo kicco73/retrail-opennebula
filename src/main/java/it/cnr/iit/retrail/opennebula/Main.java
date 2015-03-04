@@ -26,8 +26,6 @@ public class Main {
     static final String defaultKeystoreName = "/META-INF/keystore.jks";
     static final String defaultKeystorePassword = "uconas4wc";
     static public UCon ucon = null;
-    static public PIPSemaphore pipSemaphore = null;
-    static public PIPSessions pipSessions = null;
     static public SemaphoreServer semaphoreServer = null;
     
     static public void main(String[] argv) throws Exception {
@@ -57,8 +55,6 @@ public class Main {
                 ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
             }
 
-            pipSessions = (PIPSessions) ucon.getPIPChain().get(0);
-            pipSemaphore = (PIPSemaphore) ucon.getPIPChain().get(1);
             // start server
             ucon.init();
         }

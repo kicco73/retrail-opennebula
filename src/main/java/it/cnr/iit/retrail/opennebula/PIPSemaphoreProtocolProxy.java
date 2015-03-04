@@ -12,31 +12,31 @@ public class PIPSemaphoreProtocolProxy implements PIPSemaphoreProtocol {
 
     @Override
     public boolean setValue(boolean value) throws Exception {
-        return Main.pipSemaphore.setValue(value);
+        return PIPSemaphore.getInstance().setValue(value);
     }
 
     @Override
     public boolean getValue() throws Exception {
-        return Main.pipSemaphore.getValue();
+        return PIPSemaphore.getInstance().getValue();
     }
 
     @Override
     public boolean setPolling(boolean value) throws Exception {
-        return Main.pipSemaphore.setPolling(value);
+        return PIPSemaphore.getInstance().setPolling(value);
     }
 
     @Override
     public boolean isPolling() {
-        return Main.pipSemaphore.isPolling();
+        return PIPSemaphore.getInstance().isPolling();
     }
 
     @Override
     public int setWatchdogPeriod(int newWatchdogPeriod) {
-        return Main.pipSemaphore.setWatchdogPeriod(newWatchdogPeriod);
+        return PIPSemaphore.getInstance().setWatchdogPeriod(newWatchdogPeriod);
     }
 
     @Override
     public int getWatchdogPeriod() {
-        return Main.pipSemaphore.getWatchdogPeriod();
+        return PIPSemaphore.getInstance().getWatchdogPeriod();
     }
 }
