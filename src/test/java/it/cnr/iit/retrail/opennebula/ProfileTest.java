@@ -26,10 +26,10 @@ public class ProfileTest extends TestCase {
 
     static final org.slf4j.Logger log = LoggerFactory.getLogger(ProfileTest.class);
     static final String pepUrlString = "http://0.0.0.0:9081";
-    private int revoked = 0;
     private PEPtest pep = null;
     private PepRequest pepRequest = null;
     private final Object revokeMonitor = new Object();
+    private int revoked = 0;
     private PIPSemaphore pipSemaphore;
     private PIPSessions pipSessions;
     

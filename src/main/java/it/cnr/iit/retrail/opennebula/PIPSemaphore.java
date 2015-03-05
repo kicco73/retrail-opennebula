@@ -16,6 +16,7 @@ import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Date;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.webserver.WebServer;
@@ -51,15 +52,15 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     public void fireSystemEvent(SystemEvent e) {
         switch (e.type) {
             case beforeApplyChanges:
-                PepAttributeInterface a = e.request.getAttribute(category, id);
-                if (a != null && polling) {
+                Collection<PepAttributeInterface> a = e.request.getAttributes(category, id);
+                if (!a.isEmpty() && polling) {
                     throw new RuntimeException("can't directly set semaphore value because polling is enabled");
                 }
                 break;
             case afterApplyChanges:
-                a = e.request.getAttribute(category, id);
-                if(a != null) {
-                    String newValueString = e.request.getAttribute(category, id).getValue();
+                a = e.request.getAttributes(category, id);
+                if(!a.isEmpty()) {
+                    String newValueString = a.iterator().next().getValue();
                     log.warn("received new value: {}", newValueString);
                     green = Boolean.parseBoolean(newValueString);
                 }
