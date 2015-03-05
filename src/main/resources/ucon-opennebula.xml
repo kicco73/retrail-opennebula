@@ -20,7 +20,11 @@
             <ucon:State name="DELETED" type="END"/>
         </ucon:States>
         <ucon:Actions>
-            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.TryAccess" source="INIT" target="TRY" failTarget="REJECTED">
+            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.TryAccess" source="INIT" target="TRY">
+                <ucon:Target decision="Deny" state="REJECTED" />
+                <ucon:Target decision="NotApplicable" state="REJECTED" />
+                <ucon:Target decision="Indeterminate" state="REJECTED" />
+
                 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="pre-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
                     <Description>PRE policy</Description>
@@ -55,7 +59,7 @@
                 </Policy>
  
             </ucon:Action>
-            <ucon:Action name="startAccess" class="it.cnr.iit.retrail.server.behaviour.PolicyDrivenAction" source="TRY" target="ONGOING">
+            <ucon:Action name="startAccess" class="it.cnr.iit.retrail.server.behaviour.PDPAction" source="TRY" target="ONGOING">
 
                 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="trystart-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
@@ -87,7 +91,10 @@
                 </Policy>
             </ucon:Action>
             <ucon:Action class="it.cnr.iit.retrail.server.behaviour.EndAccess" source="TRY" target="DELETED"/>
-            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.OngoingAccess" source="ONGOING" failTarget="REVOKED">
+            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.OngoingAccess" source="ONGOING">
+                <ucon:Target decision="Deny" state="REVOKED" />
+                <ucon:Target decision="NotApplicable" state="REVOKED" />
+                <ucon:Target decision="Indeterminate" state="REVOKED" />
                 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="on-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
                     <Description>ON policy</Description>
