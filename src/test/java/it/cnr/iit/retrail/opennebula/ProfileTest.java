@@ -32,11 +32,17 @@ public class ProfileTest extends TestCase {
     private int revoked = 0;
     private PIPSemaphore pipSemaphore;
     private PIPSessions pipSessions;
-    
+
     private class PEPtest extends PEP {
 
         public PEPtest(URL pdpUrl, URL myUrl) throws Exception {
             super(pdpUrl, myUrl);
+        }
+
+        @Override
+        public void onRecoverAccess(PepSession session) throws Exception {
+            // Remove previous run stale sessions
+            endAccess(session);
         }
 
         @Override
@@ -69,7 +75,6 @@ public class ProfileTest extends TestCase {
         pipSessions = (PIPSessions) Main.ucon.getPIPChain().get("sessions");
         log.warn("creating pep client");
         pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
-        pep.setAccessRecoverableByDefault(false);
         InputStream ks = MainTest.class.getResourceAsStream(Main.defaultKeystoreName);
         pep.trustAllPeers(ks, Main.defaultKeystorePassword);
         pep.init();
@@ -99,37 +104,36 @@ public class ProfileTest extends TestCase {
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("ok, {} concurrent sessions opened; total tryAccess time [T{}] = {} ms, normalized {} ms", n, n, elapsedMs, elapsedMs/n);
+        log.info("ok, {} concurrent sessions opened; total tryAccess time [T{}] = {} ms, normalized {} ms", n, n, elapsedMs, elapsedMs / n);
     }
-    
+
     private void assignConcurrentSessions() throws Exception {
         int n = pep.getSessions().size();
         pipSemaphore.setPolling(false);
         log.info("sequentially starting {} concurrent sessions");
         long startMs = System.currentTimeMillis();
         int i = 0;
-        for (PepSession pepSession: pep.getSessions()) {
+        for (PepSession pepSession : pep.getSessions()) {
             log.info("assigning session: {} ", i++);
             pep.assignCustomId(pepSession.getUuid(), null, "openNebula." + i);
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("ok, custom ids assigned; total assignCustomId time [A{}] = {} ms, normalized = {} ms", n, elapsedMs, elapsedMs/n);
+        log.info("ok, custom ids assigned; total assignCustomId time [A{}] = {} ms, normalized = {} ms", n, elapsedMs, elapsedMs / n);
     }
-    
+
     private void startConcurrentSessions() throws Exception {
         int n = pep.getSessions().size();
         pipSemaphore.setPolling(false);
         log.info("sequentially starting concurrent sessions");
         long startMs = System.currentTimeMillis();
-        for (PepSession pepSession: pep.getSessions()) {
+        for (PepSession pepSession : pep.getSessions()) {
             log.info("starting session:  {} ", pepSession);
             pepSession = pep.startAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("ok, concurrent sessions opened; total startAccess time [St{}] = {} ms, normalized = {} ms",  n, elapsedMs, elapsedMs/n);
+        log.info("ok, concurrent sessions opened; total startAccess time [St{}] = {} ms, normalized = {} ms", n, elapsedMs, elapsedMs / n);
     }
-
 
     private void setSemaphoreValueViaPIP(boolean value) throws Exception {
         Client pipRpc = new Client(new URL(PIPSemaphore.myUrlString));
@@ -148,7 +152,7 @@ public class ProfileTest extends TestCase {
             pep.endAccess(pepSession);
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("all {} sessions closed; total endAccess time [E{}] = {} ms, normalized = {} ms", n, n, elapsedMs, elapsedMs/n);
+        log.info("all {} sessions closed; total endAccess time [E{}] = {} ms, normalized = {} ms", n, n, elapsedMs, elapsedMs / n);
         assertEquals(0, pipSessions.getSessions());
     }
 
@@ -167,7 +171,7 @@ public class ProfileTest extends TestCase {
             }
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
-        log.info("{} of {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms, normalized = {} ms", revoked, n, n, elapsedMs, elapsedMs/n);
+        log.info("{} of {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms, normalized = {} ms", revoked, n, n, elapsedMs, elapsedMs / n);
         closeConcurrentSessions();
     }
 
@@ -177,55 +181,63 @@ public class ProfileTest extends TestCase {
         profileRevocationsViaPIP(10);
         log.info("ok");
     }
-    
+
     public void test20_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(20);
         log.info("ok");
     }
+
     public void test30_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(30);
         log.info("ok");
     }
+
     public void test40_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(40);
         log.info("ok");
     }
+
     public void test50_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(50);
         log.info("ok");
     }
+
     public void test60_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(60);
         log.info("ok");
     }
+
     public void test70_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(70);
         log.info("ok");
     }
+
     public void test80_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(80);
         log.info("ok");
     }
+
     public void test90_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
         profileRevocationsViaPIP(90);
         log.info("ok");
     }
+
     public void testA0_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
@@ -239,6 +251,5 @@ public class ProfileTest extends TestCase {
         profileRevocationsViaPIP(1000);
         log.info("ok");
     }
-    
- 
+
 }

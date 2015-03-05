@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MainTest extends TestCase {
+
     static final org.slf4j.Logger log = LoggerFactory.getLogger(MainTest.class);
     static final String pepUrlString = "https://0.0.0.0:9081";
     private int revoked = 0;
@@ -34,32 +35,39 @@ public class MainTest extends TestCase {
     private final Object revokeMonitor = new Object();
     private PIPSemaphore pipSemaphore;
     private PIPSessions pipSessions;
+
     private class PEPtest extends PEP {
 
         public PEPtest(URL pdpUrl, URL myUrl) throws Exception {
             super(pdpUrl, myUrl);
         }
-        
+
+        @Override
+        public void onRecoverAccess(PepSession session) throws Exception {
+            // Remove previous run stale sessions
+            endAccess(session);
+        }
+
         @Override
         public void onObligation(PepSession session, String obligation) throws Exception {
             log.warn("obligation received: {}", obligation);
         }
-        
+
         @Override
         public void onRevokeAccess(PepSession session) {
             log.warn("revocation received: {}", session);
-            synchronized(revokeMonitor) {
+            synchronized (revokeMonitor) {
                 revoked++;
                 revokeMonitor.notifyAll();
             }
         }
-        
+
     }
-    
+
     public MainTest(String testName) {
         super(testName);
     }
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -70,7 +78,6 @@ public class MainTest extends TestCase {
         pipSessions = (PIPSessions) Main.ucon.getPIPChain().get("sessions");
         log.warn("creating pep client");
         pep = new PEPtest(Main.ucon.myUrl, new URL(pepUrlString));
-        pep.setAccessRecoverableByDefault(false);
         pep.trustAllPeers();
         // Allowing client to accept a self-signed certificate;
         // allow callbacks to the pep for untrusted ucons.
@@ -79,12 +86,12 @@ public class MainTest extends TestCase {
         pep.init();
         pep.startRecording(new File("retrail-opennebula.xml"));
         pepRequest = PepRequest.newInstance(
-            "carniani",
-            "urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination",
-            " ",
-            "issuer");
+                "carniani",
+                "urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination",
+                " ",
+                "issuer");
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         pep.stopRecording();
@@ -92,31 +99,33 @@ public class MainTest extends TestCase {
         Main.term();
         super.tearDown();
     }
-    
+
     private void setSemaphoreValue(boolean value) throws Exception {
-            Client pipRpc = new Client(new URL(PIPSemaphore.myUrlString));
-            pipRpc.trustAllPeers();
-            Object []params = new Object[]{value};
-            log.warn("calling remote PIPSemaphore.setValue({}) at url {}", value, PIPSemaphore.myUrlString);
-            pipRpc.startRecording(new File("pipsemaphore.xml"));
-            pipRpc.execute("PIPSemaphore.setValue", params);
-            pipRpc.stopRecording();
-        }
-        
+        Client pipRpc = new Client(new URL(PIPSemaphore.myUrlString));
+        pipRpc.trustAllPeers();
+        Object[] params = new Object[]{value};
+        log.warn("calling remote PIPSemaphore.setValue({}) at url {}", value, PIPSemaphore.myUrlString);
+        pipRpc.startRecording(new File("pipsemaphore.xml"));
+        pipRpc.execute("PIPSemaphore.setValue", params);
+        pipRpc.stopRecording();
+    }
+
     private void setExternalSemaphoreValue(boolean value) throws Exception {
-            Client pipRpc = new Client(Main.semaphoreServer.myUrl);
-            pipRpc.trustAllPeers();
-            Object []params = new Object[]{value};
-            log.warn("calling remote SemaphoreServer.setValue({}) at url {}", value, Main.semaphoreServer.myUrl);
-            pipRpc.startRecording(new File("semaphoreserver.xml"));
-            pipRpc.execute("SemaphoreServer.setValue", params);
-            pipRpc.stopRecording();
-        }
+        Client pipRpc = new Client(Main.semaphoreServer.myUrl);
+        pipRpc.trustAllPeers();
+        Object[] params = new Object[]{value};
+        log.warn("calling remote SemaphoreServer.setValue({}) at url {}", value, Main.semaphoreServer.myUrl);
+        pipRpc.startRecording(new File("semaphoreserver.xml"));
+        pipRpc.execute("SemaphoreServer.setValue", params);
+        pipRpc.stopRecording();
+    }
+
     /**
      * Test of main method, of class Main.
+     *
      * @throws java.lang.Exception
      */
-    
+
     public void testLocalToggle() throws Exception {
         log.warn("testing local semaphore toggle");
         pipSemaphore.setPolling(false);
@@ -151,12 +160,12 @@ public class MainTest extends TestCase {
     public void testConcurrentTryAccess() throws Exception {
         pipSemaphore.setPolling(false);
         List<PepSession> sessions = new ArrayList<>(11);
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             log.warn("testing concurrent try access {}", i);
             assertEquals(i, pipSessions.getSessions());
             PepSession pepSession = pep.tryAccess(pepRequest);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
-            pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggle."+i);
+            pep.assignCustomId(pepSession.getUuid(), null, "testRemoteToggle." + i);
             assertEquals(i, pipSessions.getSessions());
             pepSession = pep.startAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
@@ -167,15 +176,16 @@ public class MainTest extends TestCase {
         assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         pepSession = pep.startAccess(pepSession);
         assertEquals(PepResponse.DecisionEnum.Deny, pepSession.getDecision());
-        for(int i = 2; i >= 0; i--) {
+        for (int i = 2; i >= 0; i--) {
             log.warn("ending session {}", i);
             pepSession = sessions.get(i);
-            assertEquals(i+1, pipSessions.getSessions());
+            assertEquals(i + 1, pipSessions.getSessions());
             pepSession = pep.endAccess(pepSession);
             assertEquals(PepResponse.DecisionEnum.Permit, pepSession.getDecision());
         }
         assertEquals(0, pipSessions.getSessions());
     }
+
     public void testRemoteToggleWithExternalSemaphore() throws Exception {
         log.warn("testing remote toggle with external semaphore");
         pipSemaphore.setPolling(true);
