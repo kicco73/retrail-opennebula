@@ -9,10 +9,9 @@ import it.cnr.iit.retrail.commons.PepRequestInterface;
 import it.cnr.iit.retrail.commons.PepSessionInterface;
 import it.cnr.iit.retrail.commons.Server;
 import it.cnr.iit.retrail.commons.impl.Client;
-import static it.cnr.iit.retrail.opennebula.Main.ucon;
+import it.cnr.iit.retrail.commons.impl.PepAttribute;
 import it.cnr.iit.retrail.server.UConInterface;
 import it.cnr.iit.retrail.server.pip.SystemEvent;
-import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import it.cnr.iit.retrail.server.pip.impl.StandAlonePIP;
 import java.io.IOException;
 import java.net.URL;
@@ -27,12 +26,12 @@ import org.slf4j.LoggerFactory;
  * @author kicco
  */
 public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol {
-    protected boolean green = true;
-    protected boolean polling = false;
-    static final public String id = "Semaphore";
-    static final public String category = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    static final public String category = PepAttribute.CATEGORIES.SUBJECT;
     static public final String myUrlString = "http://0.0.0.0:9082";
-    final WebServer webServer;
+    private String attributeId = "Semaphore";
+    private boolean value = true;
+    private boolean polling = false;
+    private final WebServer webServer;
     private final Client client;
     private static PIPSemaphore instance;
     
@@ -42,7 +41,7 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     
     public PIPSemaphore() throws Exception {
         this.log = LoggerFactory.getLogger(PIPSemaphore.class);
-        log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrlString, id, green, getClass().getSimpleName());
+        log.warn("creating semaphore at URL: {}, initial {} value: {}; namespace: {}", myUrlString, attributeId, value, getClass().getSimpleName());
         this.webServer = Server.createWebServer(new URL(myUrlString), PIPSemaphoreProtocolProxy.class, getClass().getSimpleName());
         client = new Client(new URL(SemaphoreServer.myUrlString));
         instance = this;
@@ -52,17 +51,17 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     public void fireSystemEvent(SystemEvent e) {
         switch (e.type) {
             case beforeApplyChanges:
-                Collection<PepAttributeInterface> a = e.request.getAttributes(category, id);
+                Collection<PepAttributeInterface> a = e.request.getAttributes(category, attributeId);
                 if (!a.isEmpty() && polling) {
                     throw new RuntimeException("can't directly set semaphore value because polling is enabled");
                 }
                 break;
             case afterApplyChanges:
-                a = e.request.getAttributes(category, id);
+                a = e.request.getAttributes(category, attributeId);
                 if(!a.isEmpty()) {
                     String newValueString = a.iterator().next().getValue();
                     log.warn("received new value: {}", newValueString);
-                    green = Boolean.parseBoolean(newValueString);
+                    value = Boolean.parseBoolean(newValueString);
                 }
                 break;
             default:
@@ -73,9 +72,9 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
     private boolean getRemoteValue() throws XmlRpcException {
         Object[] params = {};
         log.warn("invoking SemaphoreServer.getValue()");
-        green = (Boolean) client.execute("SemaphoreServer.getValue", params);
-        log.warn("green = {}", green);
-        return green;
+        value = (Boolean) client.execute("SemaphoreServer.getValue", params);
+        log.warn("green = {}", value);
+        return value;
     }
 
     @Override
@@ -83,12 +82,12 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
         //log.warn("refreshing semaphore value");
         if (polling) {
             try {
-                green = getRemoteValue();
+                value = getRemoteValue();
             } catch (XmlRpcException ex) {
                 log.error("while retrieving remote semaphore value: {}", ex);
             }
         }
-        PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
+        PepAttributeInterface test = newSharedAttribute(attributeId, PepAttribute.DATATYPES.BOOLEAN, value, category);
         if (polling) {
             test.setExpires(new Date());
         }
@@ -133,18 +132,26 @@ public class PIPSemaphore extends StandAlonePIP implements PIPSemaphoreProtocol 
         if (polling) {
             throw new RuntimeException("can't directly set semaphore value because polling is enabled");
         }
-        this.green = green;
+        this.value = green;
         log.warn("setting new value: {}, attributes {}", green);
         //notifyChanges(listManagedAttributes());
         // XXX FIXME Workaround
-        PepAttributeInterface test = newSharedAttribute(id, "http://www.w3.org/2001/XMLSchema#boolean", Boolean.toString(green), "http://localhost:8080/federation-id-prov/saml", category);
+        PepAttributeInterface test = newSharedAttribute(getAttributeId(), PepAttribute.DATATYPES.BOOLEAN, green, category);
         notifyChanges(test);
-        return this.green;
+        return this.value;
+    }
+    
+    public String getAttributeId() {
+        return attributeId;
     }
 
+    public void setAttributeId(String attributeId) {
+        this.attributeId = attributeId;
+    }
+    
     @Override
     public synchronized boolean getValue() throws Exception {
-        return polling ? getRemoteValue() : green;
+        return polling ? getRemoteValue() : value;
     }
 
     @Override

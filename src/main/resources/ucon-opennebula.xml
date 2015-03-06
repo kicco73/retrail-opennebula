@@ -36,14 +36,14 @@
                                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:boolean-equal">
                                         <AttributeDesignator AttributeId="Semaphore" 
                                              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
+                                             DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
                                     </Match>
                                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
                                         <AttributeDesignator AttributeId="openSessions" 
                                              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
+                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">4</AttributeValue>
                                     </Match>
@@ -72,14 +72,14 @@
                                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:boolean-equal">
                                         <AttributeDesignator AttributeId="Semaphore" 
                                              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
+                                             DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
                                     </Match>
                                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
                                         <AttributeDesignator AttributeId="openSessions" 
                                              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
+                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">3</AttributeValue>
                                     </Match>
@@ -106,7 +106,7 @@
                                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:boolean-equal">
                                         <AttributeDesignator AttributeId="Semaphore" 
                                              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://localhost:8080/federation-id-prov/saml">
+                                             DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
                                     </Match>
