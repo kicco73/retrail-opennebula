@@ -34,7 +34,7 @@ public class Main {
             semaphoreServer.init();
 
             String pdpUrlString = argv != null && argv.length > 0? 
-                    argv[0] : "https://0.0.0.0:9080";
+                    argv[0] : "http://0.0.0.0:9080";
             URL pdpUrl = new URL(pdpUrlString);
             log.info("Setting up Ucon server at {}...", pdpUrlString);
             ucon = UConFactory.getInstance(pdpUrl);

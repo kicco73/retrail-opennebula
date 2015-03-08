@@ -181,7 +181,7 @@ public class ProfileTest extends TestCase {
         profileRevocationsViaPIP(10);
         log.info("ok");
     }
-
+/*
     public void test20_profileRevocationsViaPIP() throws Exception {
         log.info("started");
         Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
@@ -251,5 +251,5 @@ public class ProfileTest extends TestCase {
         profileRevocationsViaPIP(1000);
         log.info("ok");
     }
-
+*/
 }
