@@ -74,6 +74,8 @@ public class MainTest extends TestCase {
         revoked = 0;
         log.warn("creating ucon server");
         Main.main(null);
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+
         pipSemaphore = (PIPSemaphore) Main.ucon.getPIPChain().get("semaphore");
         pipSessions = (PIPSessions) Main.ucon.getPIPChain().get("sessions");
         log.warn("creating pep client");
@@ -126,6 +128,9 @@ public class MainTest extends TestCase {
      * @throws java.lang.Exception
      */
 
+    public void testDummy() {
+    }
+    /*
     public void testLocalToggle() throws Exception {
         log.warn("testing local semaphore toggle");
         pipSemaphore.setPolling(false);
@@ -216,4 +221,5 @@ public class MainTest extends TestCase {
         pep.endAccess(pepSession);
         assertEquals(0, pipSessions.getSessions());
     }
+    */
 }

@@ -3,12 +3,18 @@
     <ucon:Property name="watchdogPeriod">0</ucon:Property>
     <ucon:Property name="maxMissedHeartbeats">3600</ucon:Property>
     <ucon:PIPChain>
+        <ucon:PIP class="it.cnr.iit.retrail.server.pip.impl.PIPSessions">
+            <ucon:Property name="uuid">sessions</ucon:Property>
+        </ucon:PIP>
         <ucon:PIP class="it.cnr.iit.retrail.opennebula.PIPSemaphore">
             <ucon:Property name="uuid">semaphore</ucon:Property>
         </ucon:PIP>
     </ucon:PIPChain>
+    <ucon:AsyncNotifier>
+        <ucon:Property name="connectionTimeout">1.0</ucon:Property>
+        <ucon:Property name="replyTimeout">2.0</ucon:Property>
+    </ucon:AsyncNotifier>
     <ucon:Behaviour>
-        <ucon:Property name="timeout">2500</ucon:Property>
         <ucon:States>
             <ucon:State name="INIT" type="BEGIN"/>
             <ucon:State name="TRY" type="PASSIVE"/>
@@ -22,9 +28,10 @@
                 <ucon:Target decision="Deny" state="REJECTED" />
                 <ucon:Target decision="NotApplicable" state="REJECTED" />
                 <ucon:Target decision="Indeterminate" state="REJECTED" />
+
                 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="pre-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
-                    <Description>Default PRE policy</Description>
+                    <Description>PRE policy</Description>
                     <Target></Target>
                     <Rule Effect="Permit" RuleId="test:rule">
                         <Target>
@@ -36,6 +43,13 @@
                                              DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
+                                    </Match>
+                                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                                        <AttributeDesignator AttributeId="openSessions" 
+                                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
+                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
+                                        </AttributeDesignator>
+                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">4</AttributeValue>
                                     </Match>
                                 </AllOf>
                             </AnyOf>
@@ -47,11 +61,13 @@
                         <ObligationExpression ObligationId="denyUsage" FulfillOn="Deny"/> 
                     </ObligationExpressions>
                 </Policy>
+ 
             </ucon:Action>
             <ucon:Action name="startAccess" class="it.cnr.iit.retrail.server.behaviour.PDPAction" source="TRY" target="ONGOING">
+
                 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="trystart-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
-                    <Description>Default TRYSTART policy</Description>
+                    <Description>TRYSTART policy</Description>
                     <Target></Target>
                     <Rule Effect="Permit" RuleId="test:rule">
                         <Target>
@@ -64,6 +80,13 @@
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
                                     </Match>
+                                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                                        <AttributeDesignator AttributeId="openSessions" 
+                                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
+                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
+                                        </AttributeDesignator>
+                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">3</AttributeValue>
+                                    </Match>
                                 </AllOf>
                             </AnyOf>
                         </Target>
@@ -71,15 +94,14 @@
                     <Rule Effect="Deny" RuleId="test:rule2"/>
                 </Policy>
             </ucon:Action>
-            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.EndAccess" source="TRY" target="DELETED">
-            </ucon:Action>
+            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.EndAccess" source="TRY" target="DELETED"/>
             <ucon:Action class="it.cnr.iit.retrail.server.behaviour.OngoingAccess" source="ONGOING">
                 <ucon:Target decision="Deny" state="REVOKED" />
                 <ucon:Target decision="NotApplicable" state="REVOKED" />
                 <ucon:Target decision="Indeterminate" state="REVOKED" />
                 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="on-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
-                    <Description>Default ON policy</Description>
+                    <Description>ON policy</Description>
                     <Target></Target>
                     <Rule Effect="Permit" RuleId="test:rule">
                         <Target>
@@ -98,10 +120,8 @@
                     </Rule>
                     <Rule Effect="Deny" RuleId="test:rule2"/>
                 </Policy>
-
             </ucon:Action>
-            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.EndAccess" source="ONGOING" target="DELETED">
-            </ucon:Action>
+            <ucon:Action class="it.cnr.iit.retrail.server.behaviour.EndAccess" source="ONGOING" target="DELETED"/>
             <ucon:Action class="it.cnr.iit.retrail.server.behaviour.EndAccess" source="REVOKED" target="DELETED"/>
         </ucon:Actions>
     </ucon:Behaviour>

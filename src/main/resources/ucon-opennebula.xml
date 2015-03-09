@@ -10,6 +10,10 @@
             <ucon:Property name="uuid">semaphore</ucon:Property>
         </ucon:PIP>
     </ucon:PIPChain>
+    <ucon:AsyncNotifier>
+        <ucon:Property name="connectionTimeout">1.0</ucon:Property>
+        <ucon:Property name="replyTimeout">2.0</ucon:Property>
+    </ucon:AsyncNotifier>
     <ucon:Behaviour>
         <ucon:States>
             <ucon:State name="INIT" type="BEGIN"/>
@@ -40,13 +44,6 @@
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
                                     </Match>
-                                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
-                                        <AttributeDesignator AttributeId="openSessions" 
-                                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
-                                        </AttributeDesignator>
-                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">4</AttributeValue>
-                                    </Match>
                                 </AllOf>
                             </AnyOf>
                         </Target>
@@ -75,13 +72,6 @@
                                              DataType="http://www.w3.org/2001/XMLSchema#boolean" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
                                         </AttributeDesignator>
                                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#boolean">true</AttributeValue>
-                                    </Match>
-                                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
-                                        <AttributeDesignator AttributeId="openSessions" 
-                                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" 
-                                             DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true" Issuer="http://security.iit.cnr.it/retrail/ucon">
-                                        </AttributeDesignator>
-                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">3</AttributeValue>
                                     </Match>
                                 </AllOf>
                             </AnyOf>

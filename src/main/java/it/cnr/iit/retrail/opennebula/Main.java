@@ -8,7 +8,6 @@ package it.cnr.iit.retrail.opennebula;
 
 import it.cnr.iit.retrail.server.impl.UCon;
 import it.cnr.iit.retrail.server.impl.UConFactory;
-import it.cnr.iit.retrail.server.pip.impl.PIPSessions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -57,6 +56,7 @@ public class Main {
 
             // start server
             ucon.init();
+            log.info("Retrail server ready");
         }
 
     static public void term() throws InterruptedException {

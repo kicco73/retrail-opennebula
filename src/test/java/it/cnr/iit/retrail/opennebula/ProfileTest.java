@@ -174,80 +174,83 @@ public class ProfileTest extends TestCase {
         log.info("{} of {} sessions revoked; total revokeAccess time for PIP [R{}] = {} ms, normalized = {} ms", revoked, n, n, elapsedMs, elapsedMs / n);
         closeConcurrentSessions();
     }
+    
+     public void test1_dummyTest() {   
+     }
+/*
 
     public void test10_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(10);
         log.info("ok");
     }
-/*
     public void test20_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(20);
         log.info("ok");
     }
 
     public void test30_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(30);
         log.info("ok");
     }
 
     public void test40_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(40);
         log.info("ok");
     }
 
     public void test50_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(50);
         log.info("ok");
     }
 
     public void test60_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(60);
         log.info("ok");
     }
 
     public void test70_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(70);
         log.info("ok");
     }
 
     public void test80_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(80);
         log.info("ok");
     }
 
     public void test90_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(90);
         log.info("ok");
     }
 
     public void testA0_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(100);
         log.info("ok");
     }
 
     public void testFF_profileRevocationsViaPIP() throws Exception {
         log.info("started");
-        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula_3.xml"));
+        Main.ucon.loadConfiguration(Main.class.getResourceAsStream("/ucon-opennebula.xml"));
         profileRevocationsViaPIP(1000);
         log.info("ok");
     }
