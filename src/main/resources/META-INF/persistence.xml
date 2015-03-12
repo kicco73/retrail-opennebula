@@ -10,9 +10,12 @@
       <!-- change here if your jdbc driver different -->
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby:retrail2.derby;create=true"/>
-      <!--<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/retrail"/>-->
+      <!--
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/retrail"/>
+      -->
       <property name="javax.persistence.jdbc.user" value="root"/>
-      <property name="javax.persistence.jdbc.password" value="contrail"/>
+      <property name="javax.persistence.jdbc.password" value="uconas4wc"/>
       <!-- property name="eclipselink.logging.level" value="ALL"/ -->
       <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
     </properties>
