@@ -61,7 +61,7 @@
                 <configuration>
                     <script>
                         echo -n "killing previously running retrail server on port 908* (if any)..."
-                        netstat --listening --programs -n 2> /dev/null | grep 908* | awk '{split($7,a,"/"); print a[1]}' | xargs kill 2> /dev/null
+                        lsof | grep java | grep LISTEN | grep 908 | awk '{print $2}' | xargs kill 2> /dev/null
                         echo done.
                         rm -rf retrail2.derby
                         exit 0
